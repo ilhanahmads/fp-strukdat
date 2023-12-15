@@ -1,5 +1,5 @@
-# Final Project 
-### Struktur Data
+# Final Project Struktur Data
+### Text-Based Adventure Game
 
 **Kelas A**
 
