@@ -15,6 +15,51 @@ class monsterKroco;
 class monsterPenyihir;
 class monsterPerusuh;
 
+class Senjata {
+private:
+    int attackSenjata;
+    int defenseSenjata;
+
+public:
+    Senjata(int attackSenjata, int defenseSenjata) : attackSenjata(attackSenjata), defenseSenjata(defenseSenjata) {}
+    Senjata() : attackSenjata(0), defenseSenjata(0) {}
+    int getattackSenjata() const {
+        return attackSenjata;
+    }
+    int getdefenseSenjata() const {
+        return defenseSenjata;
+    }
+};
+
+class Pedang : public Senjata {
+public:
+    Pedang() : Senjata(4, 2) {}
+
+    ~Pedang() {}
+};
+
+class Tombak : public Senjata {
+public:
+    Tombak() : Senjata(3, 2) {}
+
+    ~Tombak() {}
+};
+
+class Kapak : public Senjata {
+public:
+    Kapak() : Senjata(4, 3) {}
+
+    ~Kapak() {}
+};
+
+class Panah : public Senjata {
+public:
+    Panah() : Senjata(4, 1) {}
+
+    ~Panah() {}
+};
+
+
 class monsterLabirin {
 protected:
     int attack;
@@ -25,6 +70,12 @@ public:
     monsterLabirin(int attack, int defense, int health) : attack(attack), defense(defense), health(health) {}
 
     virtual ~monsterLabirin() {}
+
+    void buffMonster() {
+        attack += 2;
+        defense += 2;
+        health += 10;
+    }
 
     int getAttack() const { return attack; }
     int getDefense() const { return defense; }
@@ -50,7 +101,7 @@ public:
 
 class monsterPenyihir : public monsterLabirin {
 public:
-    monsterPenyihir() : monsterLabirin(4, 3, 20) {}
+    monsterPenyihir() : monsterLabirin(4, 3, 15) {}
 
     ~monsterPenyihir() {}
 
@@ -61,7 +112,7 @@ public:
 
 class monsterPerusuh : public monsterLabirin {
 public:
-    monsterPerusuh() : monsterLabirin(2, 1, 10) {}
+    monsterPerusuh() : monsterLabirin(2, 1, 20) {}
 
     ~monsterPerusuh() {}
 
@@ -79,9 +130,15 @@ protected:
     int xp;
     bool Hidup;
 
-public:
-    karakterTersesat(int attack, int defense, int health) : attack(attack), defense(defense), health(health), level(1), xp(0), Hidup(true) {}
+private:
+    Senjata senjata;
 
+public:
+    monsterLabirin* monster;
+
+    karakterTersesat(int attack, int defense, int health) 
+        : attack(attack), defense(defense), health(health), level(1), xp(0), Hidup(true), senjata() {}
+    
     virtual ~karakterTersesat() {}
 
     virtual void levelNaik() = 0;
@@ -92,6 +149,12 @@ public:
     int getHealth() const { return health; }
     int getLevel() const { return level; }
     int getxp() const { return xp; }
+    int getattackSenjata() const {
+        return senjata.getattackSenjata();
+    }
+    int getdefenseSenjata() const {
+        return senjata.getdefenseSenjata();
+    }
 
     void tampilStatus() const {
         cout << "Status karakter" << endl;
@@ -102,11 +165,30 @@ public:
         cout << "Health: " << health << endl;
     }
 
+    void generateRandomSenjata() {
+        int chance = rand() % 100;
+
+        if (chance < 20) {
+            cout << "Kamu mendapat pedang!" << endl;
+        } else if (chance < 40) {
+            cout << "Kamu mendapat tombak!" << endl;
+        } else if (chance < 60) {
+            cout << "Kamu mendapat kapak!" << endl;
+        } else if (chance < 80) {
+            cout << "Kamu mendapat panah!" << endl;
+        } else {
+            cout << "Kamu tidak mendapat apa-apa:(" << endl;
+        }
+    }
+
     void generateRandomEvent() {
-        int chance = rand() % 100;  // Generate a random number between 0 and 99
+        int chance = rand() % 100;
 
         if (chance < 35) {
             // 35% chance to encounter monsterKroco
+            cout << endl;
+            cout << "Bertemu dengan monster kroco!" << endl;
+            cout << "Memulai pertarungan!" << endl;
             pertemuanMonster(new monsterKroco());
             xp += 10;
             if (xp >= 10) {
@@ -115,6 +197,9 @@ public:
             }
         } else if (chance < 60) {
             // 25% chance to encounter monsterPenyihir
+            cout << endl;
+            cout << "Bertemu dengan monster penyihir!" << endl;
+            cout << "Memulai pertarungan!" << endl;
             pertemuanMonster(new monsterPenyihir());
             xp += 15;
             if (xp >= 10) {
@@ -123,6 +208,9 @@ public:
             }
         } else if (chance < 80) {
             // 20% chance to encounter monsterPerusuh
+            cout << endl;
+            cout << "Bertemu dengan monster perusuh!" << endl;
+            cout << "Memulai pertarungan!" << endl;
             pertemuanMonster(new monsterPerusuh());
             xp += 20;
             if (xp >= 10) {
@@ -132,6 +220,7 @@ public:
         } else {
             // 20% chance to gain 20 XP
             cout << "Selamat! Kamu mendapatkan 20 XP!" << endl;
+            cout << "Beruntung sekali tidak bertemu monster." << endl;
             xp += 20;
             if (xp >= 10) {
                 xp -= 10;
@@ -191,6 +280,7 @@ void karakterTersesat::pertemuanMonster(monsterLabirin* monster) {
         // Cek apakah monster masih hidup
         if (monster->getHealth() <= 0) {
             cout << "Monster berhasil dikalahkan!" << endl;
+            cout << endl;
             break;
         }
 
@@ -222,7 +312,6 @@ public:
         level++;
 
         cout << "Selamat! Kamu naik level menjadi level " << level << "!" << endl;
-        tampilStatus();
 
         cout << "Pilih atribut yang ingin ditingkatkan:" << endl;
         cout << "1. Attack +2" << endl;
@@ -246,6 +335,9 @@ public:
             default:
                 cout << "Pilihan tidak valid. Atribut tetap tidak berubah." << endl;
         }
+        cout << endl;
+        tampilStatus();
+        cout << endl;
     }
 };
 
@@ -261,7 +353,6 @@ public:
         level++;
 
         cout << "Selamat! Kamu naik level menjadi level " << level << "!" << endl;
-        tampilStatus();
 
         cout << "Pilih atribut yang ingin ditingkatkan:" << endl;
         cout << "1. Attack +2" << endl;
@@ -285,6 +376,9 @@ public:
             default:
                 cout << "Pilihan tidak valid. Atribut tetap tidak berubah." << endl;
         }
+        cout << endl;
+        tampilStatus();
+        cout << endl;
     }
 };
 
@@ -300,7 +394,6 @@ public:
         level++;
 
         cout << "Selamat! Kamu naik level menjadi level " << level << "!" << endl;
-        tampilStatus();
 
         cout << "Pilih atribut yang ingin ditingkatkan:" << endl;
         cout << "1. Attack +2" << endl;
@@ -324,6 +417,9 @@ public:
             default:
                 cout << "Pilihan tidak valid. Atribut tetap tidak berubah." << endl;
         }
+        cout << endl;
+        tampilStatus();
+        cout << endl;
     }
 };
 
@@ -350,6 +446,7 @@ void Fighter::berjalan(Labirin& labirin) {
         if (choice == 'y' || choice == 'Y') {
             currentVertex++;
             cout << "Kamu berjalan ke cekpoin " << currentVertex << endl;
+            generateRandomSenjata();
             generateRandomEvent();
         } else {
             cout << "Perjalanan dihentikan." << endl;
@@ -368,6 +465,7 @@ void Assassin::berjalan(Labirin& labirin) {
         if (choice == 'y' || choice == 'Y') {
             currentVertex++;
             cout << "Kamu berjalan ke cekpoin " << currentVertex << endl;
+            generateRandomSenjata();
             generateRandomEvent();
         } else {
             cout << "Perjalanan dihentikan." << endl;
@@ -382,10 +480,12 @@ void Tank::berjalan(Labirin& labirin) {
         cout << "Lanjut ke cekpoin selanjutnya? (y/n): ";
         char choice;
         cin >> choice;
+        cout << endl;
 
         if (choice == 'y' || choice == 'Y') {
             currentVertex++;
             cout << "Kamu berjalan ke cekpoin " << currentVertex << endl;
+            generateRandomSenjata();
             generateRandomEvent();
         } else {
             cout << "Perjalanan dihentikan." << endl;
